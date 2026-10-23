@@ -1,42 +1,60 @@
-const mongoose = require('mongoose');
 
+const mongoose = require("mongoose");
+
+// Aquí definimos los datos que puede tener cada usuario.
 const userSchema = new mongoose.Schema(
-  {
-    nombre: {
-      type: String,
-      required: true,
-      minlength: 2,
-      maxlength: 50,
-      trim: true
-    },
+    {
+        // Nombre del usuario.
+        name: {
+            type: String,
+            required: true,
+            minlength: 1,
+            trim: true
+        },
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      lowercase: true,
-      trim: true
-    },
+        // Correo obligatorio y único para cada usuario.
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        },
 
-    password: {
-      type: String,
-      required: true,
-      minlength: 6
-    },
+        // Guardamos el hash, nunca la contraseña original.
+        passwordHash: {
+            type: String,
+            required: true,
+            select: false
+        },
 
-    rol: {
-      type: String,
-      required: true,
-      enum: ['cliente', 'administrador'],
-      default: 'cliente'
+        // Los usuarios nuevos serán clientes, no administradores.
+        role: {
+            type: String,
+            enum: ["client", "admin"],
+            default: "client"
+        },
+
+        // Permite desactivar usuarios sin borrarlos de la base de datos.
+        active: {
+            type: Boolean,
+            default: true
+        }
+    },
+    {
+        // Guardamos automáticamente las fechas de creación y modificación.
+        timestamps: true
     }
-  },
-  {
-    timestamps: true
-  }
 );
 
-userSchema.index({ email: 1 }, { unique: true });
+// Quitamos el hash antes de convertir un usuario a JSON para responder.
+userSchema.set("toJSON", {
+    transform: (document, returnedObject) => {
+        delete returnedObject.passwordHash;
+        delete returnedObject.__v;
+        return returnedObject;
+    }
+});
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

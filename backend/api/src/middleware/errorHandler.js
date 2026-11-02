@@ -1,9 +1,10 @@
 
 const mongoose = require("mongoose");
 
-// Este middleware recibe los errores de los controladores y servicios.
+// Este archivo recibe y controla los errores de toda la API.
 const errorHandler = (error, req, res, next) => {
-    // Si la respuesta ya se ha enviado, dejamos que Express gestione el error.
+
+    // Si ya hemos enviado una respuesta, dejamos continuar.
     if (res.headersSent) {
         return next(error);
     }
@@ -13,14 +14,14 @@ const errorHandler = (error, req, res, next) => {
     let message = "Ha ocurrido un error interno";
     let details = [];
 
-    // El ID no tiene el formato correcto.
+    // Error cuando el ID de MongoDB no es válido.
     if (error instanceof mongoose.Error.CastError) {
         status = 400;
         code = "INVALID_ID";
         message = "El identificador no es válido";
     }
 
-    // Los datos no cumplen las reglas del modelo.
+    // Error cuando faltan datos o no cumplen las reglas.
     else if (error instanceof mongoose.Error.ValidationError) {
         status = 422;
         code = "VALIDATION_ERROR";
@@ -32,25 +33,50 @@ const errorHandler = (error, req, res, next) => {
         }));
     }
 
-    // Se ha intentado repetir un valor único, como un email o un slug.
+    // Error cuando intentamos repetir un email o slug.
     else if (error.code === 11000) {
         status = 409;
         code = "DUPLICATE_VALUE";
         message = "Ese valor ya existe";
+
         details = Object.keys(error.keyValue || {}).map((field) => ({
             field,
-            message: "Este valor debe ser único"
+            message: "Este valor ya está registrado"
         }));
     }
 
-    // Errores controlados, por ejemplo una contraseña demasiado corta.
+    // Error cuando faltan datos o son incorrectos.
     else if (error.status === 400) {
         status = 400;
         code = "BAD_REQUEST";
         message = error.message;
     }
 
-    // Enviamos una respuesta clara sin enseñar detalles internos del servidor.
+    // Error cuando el usuario no ha podido iniciar sesión.
+    else if (error.status === 401) {
+        status = 401;
+        code = "UNAUTHORIZED";
+        message = error.message;
+    }
+
+    // Error cuando un usuario o recurso no existe.
+    else if (error.status === 404) {
+        status = 404;
+        code = "NOT_FOUND";
+        message = error.message;
+    }
+
+    // Error cuando un email ya está registrado.
+    else if (error.status === 409) {
+        status = 409;
+        code = "CONFLICT";
+        message = error.message;
+    }
+
+    // Mostramos el error en la terminal para poder revisarlo.
+    console.error(error);
+
+    // Enviamos una respuesta clara al usuario.
     res.status(status).json({
         success: false,
         error: {
@@ -61,4 +87,5 @@ const errorHandler = (error, req, res, next) => {
     });
 };
 
+// Exportamos el middleware.
 module.exports = errorHandler;

@@ -1,18 +1,18 @@
 
 const mongoose = require("mongoose");
 
-// Aquí definimos los datos que puede tener cada usuario.
+// Aquí definimos los datos de cada usuario.
 const userSchema = new mongoose.Schema(
     {
         // Nombre del usuario.
         name: {
             type: String,
             required: true,
-            minlength: 1,
+            minlength: 2,
             trim: true
         },
 
-        // Correo obligatorio y único para cada usuario.
+        // Email obligatorio y único.
         email: {
             type: String,
             required: true,
@@ -22,33 +22,33 @@ const userSchema = new mongoose.Schema(
             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         },
 
-        // Guardamos el hash, nunca la contraseña original.
+        // Aquí guardamos el hash de la contraseña.
         passwordHash: {
             type: String,
             required: true,
             select: false
         },
 
-        // Los usuarios nuevos serán clientes, no administradores.
+        // El usuario nuevo será cliente.
         role: {
             type: String,
             enum: ["client", "admin"],
             default: "client"
         },
 
-        // Permite desactivar usuarios sin borrarlos de la base de datos.
+        // Indica si el usuario está activo.
         active: {
             type: Boolean,
             default: true
         }
     },
     {
-        // Guardamos automáticamente las fechas de creación y modificación.
+        // MongoDB guarda las fechas automáticamente.
         timestamps: true
     }
 );
 
-// Quitamos el hash antes de convertir un usuario a JSON para responder.
+// Quitamos el hash de la respuesta JSON.
 userSchema.set("toJSON", {
     transform: (document, returnedObject) => {
         delete returnedObject.passwordHash;
@@ -57,4 +57,5 @@ userSchema.set("toJSON", {
     }
 });
 
+// Creamos el modelo.
 module.exports = mongoose.model("User", userSchema);

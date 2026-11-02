@@ -1,4 +1,4 @@
-
+const mongoose = require("mongoose");
 const Category = require("../models/Category");
 
 // Crear una categoría nueva.
@@ -74,13 +74,29 @@ const getCategories = async (query) => {
     };
 };
 
-// Buscar una categoría concreta por su ID.
+// Buscar una categoría por su ID.
 const getCategoryById = async (id) => {
+
+    // Comprobar que el ID sea válido.
+    if (!mongoose.isValidObjectId(id)) {
+        const error = new Error("El ID de la categoría no es válido");
+        error.status = 400;
+        throw error;
+    }
+
     return await Category.findById(id);
 };
 
-// Modificar una categoría existente.
+// Modificar una categoría.
 const updateCategory = async (id, data) => {
+
+    // Comprobar que el ID sea válido.
+    if (!mongoose.isValidObjectId(id)) {
+        const error = new Error("El ID de la categoría no es válido");
+        error.status = 400;
+        throw error;
+    }
+
     return await Category.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true
@@ -89,6 +105,14 @@ const updateCategory = async (id, data) => {
 
 // Eliminar una categoría.
 const deleteCategory = async (id) => {
+
+    // Comprobar que el ID sea válido.
+    if (!mongoose.isValidObjectId(id)) {
+        const error = new Error("El ID de la categoría no es válido");
+        error.status = 400;
+        throw error;
+    }
+
     return await Category.findByIdAndDelete(id);
 };
 

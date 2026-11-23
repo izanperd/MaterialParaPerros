@@ -1,5 +1,6 @@
 
 const userService = require("../services/userService");
+const tokenService = require("../services/tokenService");
 
 // Registrar un usuario.
 const register = async (req, res, next) => {
@@ -8,7 +9,6 @@ const register = async (req, res, next) => {
 
         res.status(201).json({
             success: true,
-            message: "Usuario registrado correctamente",
             data: user
         });
     } catch (error) {
@@ -16,15 +16,62 @@ const register = async (req, res, next) => {
     }
 };
 
-// Iniciar sesión.
+// Iniciar sesión y generar los dos tokens.
 const login = async (req, res, next) => {
     try {
-        const result = await userService.login(req.body);
+        const result = await tokenService.login(req.body);
 
         res.status(200).json({
             success: true,
-            message: "Inicio de sesión correcto",
             data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Renovar los tokens.
+const refresh = async (req, res, next) => {
+    try {
+        const result = await tokenService.refresh(req.body.refreshToken);
+
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Cerrar sesión.
+const logout = async (req, res, next) => {
+    try {
+        const result = await tokenService.logout(req.body.refreshToken);
+
+        res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Mostrar los datos del usuario que ha iniciado sesión.
+const getMe = async (req, res, next) => {
+    try {
+        const user = await userService.getUserById(req.user.id);
+
+        if (!user) {
+            const error = new Error("Usuario no encontrado");
+            error.status = 404;
+            throw error;
+        }
+
+        res.status(200).json({
+            success: true,
+            data: user
         });
     } catch (error) {
         next(error);
@@ -38,14 +85,15 @@ const getUsers = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            ...result
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         next(error);
     }
 };
 
-// Mostrar un usuario por su ID.
+// Buscar un usuario por su ID.
 const getUserById = async (req, res, next) => {
     try {
         const user = await userService.getUserById(req.params.id);
@@ -68,10 +116,7 @@ const getUserById = async (req, res, next) => {
 // Modificar un usuario.
 const updateUser = async (req, res, next) => {
     try {
-        const user = await userService.updateUser(
-            req.params.id,
-            req.body
-        );
+        const user = await userService.updateUser(req.params.id, req.body);
 
         if (!user) {
             const error = new Error("Usuario no encontrado");
@@ -101,17 +146,20 @@ const deleteUser = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: "Usuario desactivado"
+            message: "Usuario desactivado correctamente"
         });
     } catch (error) {
         next(error);
     }
 };
 
-// Exportamos todas las funciones.
+// Exportamos las funciones.
 module.exports = {
     register,
     login,
+    refresh,
+    logout,
+    getMe,
     getUsers,
     getUserById,
     updateUser,

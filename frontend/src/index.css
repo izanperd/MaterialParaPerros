@@ -1,0 +1,92 @@
+
+/* Estilos generales */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #222;
+}
+
+/* Menú de navegación */
+nav {
+  display: flex;
+  gap: 25px;
+  padding: 20px;
+  background: #17251e;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Portada */
+.inicio {
+  padding: 80px 20px;
+  text-align: center;
+  background: #263b30;
+  color: white;
+}
+
+.inicio h1 {
+  font-size: 40px;
+}
+
+.inicio a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 20px;
+  background: #c6a45c;
+  color: #222;
+  text-decoration: none;
+}
+
+/* Productos */
+#productos {
+  padding: 30px;
+  text-align: center;
+}
+
+.productos {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.producto {
+  width: 200px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+button {
+  padding: 10px;
+  background: #263b30;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* Formularios */
+.formulario {
+  width: 300px;
+  margin: 60px auto;
+  padding: 25px;
+  background: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+}
+
+.formulario button {
+  width: 100%;
+}

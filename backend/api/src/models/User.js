@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
-            match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // regex
         },
 
         // Aquí guardamos el hash de la contraseña.
